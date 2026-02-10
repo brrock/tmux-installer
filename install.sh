@@ -1,0 +1,63 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
+TEMP_DIR=$(mktemp -d)
+
+cleanup() {
+  rm -rf "${TEMP_DIR}"
+}
+
+trap cleanup EXIT
+
+echo "Fetching latest tmux release..."
+
+REPO="${GITHUB_REPO:-brrock/tmux-releases}"
+echo "Using repository: $REPO"
+RELEASE_URL=$(curl -s "https://api.github.com/repos/${REPO}/releases/latest" | grep "browser_download_url.*linux-amd64.tar.gz" | cut -d '"' -f 4)
+
+if [ -z "$RELEASE_URL" ]; then
+  echo "Error: Could not find latest release"
+  exit 1
+fi
+
+echo "Downloading from: $RELEASE_URL"
+curl -L -o "${TEMP_DIR}/tmux-linux-amd64.tar.gz" "$RELEASE_URL"
+
+echo "Extracting tmux..."
+tar xzf "${TEMP_DIR}/tmux-linux-amd64.tar.gz" -C "${TEMP_DIR}"
+
+if [ ! -f "${TEMP_DIR}/tmux" ]; then
+  echo "Error: tmux binary not found in archive"
+  exit 1
+fi
+
+echo "Installing tmux to ${INSTALL_DIR}..."
+
+if [ -w "${INSTALL_DIR}" ]; then
+  cp "${TEMP_DIR}/tmux" "${INSTALL_DIR}/"
+else
+  echo "Installing with sudo..."
+  sudo cp "${TEMP_DIR}/tmux" "${INSTALL_DIR}/"
+fi
+
+chmod +x "${INSTALL_DIR}/tmux"
+
+echo "Verifying installation..."
+if ldd "${INSTALL_DIR}/tmux" &> /dev/null; then
+  MISSING=$(ldd "${INSTALL_DIR}/tmux" 2>/dev/null | grep "not found" || true)
+  if [ -n "$MISSING" ]; then
+    echo "Warning: The following libraries are missing on your system:"
+    echo "$MISSING"
+    echo "tmux requires libevent and ncurses. Install them with your package manager."
+    echo "  Ubuntu/Debian: sudo apt-get install libevent-2.1-7 libncurses6"
+    echo "  CentOS/RHEL: sudo yum install libevent ncurses-libs"
+    echo "  Fedora: sudo dnf install libevent ncurses-libs"
+    echo "  Arch: sudo pacman -S libevent ncurses"
+  fi
+fi
+
+VERSION=$("${INSTALL_DIR}/tmux" -V)
+echo "Successfully installed tmux: ${VERSION}"

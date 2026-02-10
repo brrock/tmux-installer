@@ -1,0 +1,73 @@
+name: Build tmux Linux AMD64
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'tmux version tag (leave empty for master)'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y autoconf automake pkg-config libevent-dev libncurses-dev bison byacc
+
+      - name: Checkout tmux
+        uses: actions/checkout@v4
+        with:
+          repository: tmux/tmux
+          ref: ${{ github.event.inputs.version || 'master' }}
+
+      - name: Build tmux
+        run: |
+          sh autogen.sh
+          ./configure
+          make -j$(nproc)
+
+      - name: Create archive
+        run: |
+          mkdir -p release
+          strip tmux
+          cp tmux release/
+          tar czf tmux-linux-amd64.tar.gz -C release tmux
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(./tmux -V | sed 's/tmux //')
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "version_tag=${VERSION}" >> $GITHUB_OUTPUT
+          if [ "${{ github.event.inputs.version }}" != "" ]; then
+            echo "version_tag=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tmux-linux-amd64
+          path: tmux-linux-amd64.tar.gz
+
+      - name: Create Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version_tag }}
+          name: tmux ${{ steps.version.outputs.version }}
+          body: tmux ${{ steps.version.outputs.version }} built for Linux AMD64
+          files: tmux-linux-amd64.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
