@@ -22,17 +22,9 @@ curl -fsSL https://raw.githubusercontent.com/brrock/tmux-installer/main/install.
 Or set `INSTALL_DIR` environment variable:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/brrock/tmux-installer/main/install.sh | bash -s && INSTALL_DIR=$HOME/bin bash install.sh
+curl -fsSL https://raw.githubusercontent.com/brrock/tmux-installer/main/install.sh | INSTALL_DIR=$HOME/bin bash -s
 ```
 
 ## Dependencies
 
-tmux requires these libraries (usually pre-installed on Linux):
-- libevent
-- ncurses
-
-If missing, the installer will show how to install them:
-- Ubuntu/Debian: `sudo apt-get install libevent-2.1-7 libncurses6`
-- CentOS/RHEL: `sudo yum install libevent ncurses-libs`
-- Fedora: `sudo dnf install libevent ncurses-libs`
-- Arch: `sudo pacman -S libevent ncurses`
+none, static binary
