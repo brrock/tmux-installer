@@ -14,7 +14,7 @@ trap cleanup EXIT
 
 echo "Fetching latest tmux release..."
 
-REPO="${GITHUB_REPO:-brrock/tmux-releases}"
+REPO="${GITHUB_REPO:-brrock/tmux-installer}"
 echo "Using repository: $REPO"
 RELEASE_URL=$(curl -s "https://api.github.com/repos/${REPO}/releases/latest" | grep "browser_download_url.*linux-amd64.tar.gz" | cut -d '"' -f 4)
 
