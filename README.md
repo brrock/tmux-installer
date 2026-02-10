@@ -5,7 +5,7 @@ Automated build and installation of tmux for Linux AMD64.
 ## Quick Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/brrock/tmux-releases/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/brrock/tmux-installer/main/install.sh | bash
 ```
 
 This will:
@@ -16,13 +16,13 @@ This will:
 ## Custom Install Location
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/brrock/tmux-releases/main/install.sh | bash -s
+curl -fsSL https://raw.githubusercontent.com/brrock/tmux-installer/main/install.sh | bash -s
 ```
 
 Or set `INSTALL_DIR` environment variable:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/brrock/tmux-releases/main/install.sh | bash -s && INSTALL_DIR=$HOME/bin bash install.sh
+curl -fsSL https://raw.githubusercontent.com/brrock/tmux-installer/main/install.sh | bash -s && INSTALL_DIR=$HOME/bin bash install.sh
 ```
 
 ## Dependencies
