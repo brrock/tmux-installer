@@ -45,19 +45,5 @@ fi
 
 chmod +x "${INSTALL_DIR}/tmux"
 
-echo "Verifying installation..."
-if ldd "${INSTALL_DIR}/tmux" &> /dev/null; then
-  MISSING=$(ldd "${INSTALL_DIR}/tmux" 2>/dev/null | grep "not found" || true)
-  if [ -n "$MISSING" ]; then
-    echo "Warning: The following libraries are missing on your system:"
-    echo "$MISSING"
-    echo "tmux requires libevent and ncurses. Install them with your package manager."
-    echo "  Ubuntu/Debian: sudo apt-get install libevent-2.1-7 libncurses6"
-    echo "  CentOS/RHEL: sudo yum install libevent ncurses-libs"
-    echo "  Fedora: sudo dnf install libevent ncurses-libs"
-    echo "  Arch: sudo pacman -S libevent ncurses"
-  fi
-fi
-
 VERSION=$("${INSTALL_DIR}/tmux" -V)
 echo "Successfully installed tmux: ${VERSION}"

@@ -24,6 +24,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y autoconf automake pkg-config libevent-dev libncurses-dev bison byacc
 
+      - name: Build static libevent
+        run: |
+          cd /tmp
+          wget https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
+          tar xzf libevent-2.1.12-stable.tar.gz
+          cd libevent-2.1.12-stable
+          ./configure --disable-shared --enable-static --prefix=/tmp/libevent-static
+          make -j$(nproc)
+          make install
+
+      - name: Build static ncurses
+        run: |
+          cd /tmp
+          wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.5.tar.gz
+          tar xzf ncurses-6.5.tar.gz
+          cd ncurses-6.5
+          ./configure --disable-shared --enable-static --without-shared --with-curses-h --prefix=/tmp/ncurses-static
+          make -j$(nproc)
+          make install
+
       - name: Checkout tmux
         uses: actions/checkout@v4
         with:
@@ -32,9 +52,14 @@ jobs:
 
       - name: Build tmux
         run: |
+          export PKG_CONFIG_PATH="/tmp/libevent-static/lib/pkgconfig:/tmp/ncurses-static/lib/pkgconfig"
+          export CFLAGS="-I/tmp/ncurses-static/include -I/tmp/libevent-static/include"
+          export LDFLAGS="-L/tmp/ncurses-static/lib -L/tmp/libevent-static/lib -static-libgcc"
           sh autogen.sh
-          ./configure
+          ./configure --enable-static
           make -j$(nproc)
+          strip tmux
+          ldd tmux || echo "Static build (ldd may fail for static binaries)"
 
       - name: Create archive
         run: |
