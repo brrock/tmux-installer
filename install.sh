@@ -38,12 +38,13 @@ echo "Installing tmux to ${INSTALL_DIR}..."
 
 if [ -w "${INSTALL_DIR}" ]; then
   cp "${TEMP_DIR}/tmux" "${INSTALL_DIR}/"
+  chmod +x "${INSTALL_DIR}/tmux"
 else
   echo "Installing with sudo..."
   sudo cp "${TEMP_DIR}/tmux" "${INSTALL_DIR}/"
+  sudo chmod +x "${INSTALL_DIR}/tmux"
 fi
 
-chmod +x "${INSTALL_DIR}/tmux"
 
 VERSION=$("${INSTALL_DIR}/tmux" -V)
 echo "Successfully installed tmux: ${VERSION}"
