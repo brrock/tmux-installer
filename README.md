@@ -11,7 +11,6 @@ curl -fsSL https://raw.githubusercontent.com/brrock/tmux-installer/main/install.
 This will:
 - Download the latest tmux binary release
 - Install it to `/usr/local/bin/tmux`
-- Check for required dependencies (libevent, ncurses)
 
 ## Custom Install Location
 
