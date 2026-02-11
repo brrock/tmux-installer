@@ -42,6 +42,7 @@ if [ -w "${INSTALL_DIR}" ]; then
 else
   echo "Installing with sudo..."
   sudo cp "${TEMP_DIR}/tmux" "${INSTALL_DIR}/"
+  echo "chmoding with sudo"
   sudo chmod +x "${INSTALL_DIR}/tmux"
 fi
 
